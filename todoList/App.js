@@ -1,10 +1,23 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Task from './components/Task';
 
 export default function App() {
 
   const [task, setTask] = useState();
+  const [taskItems, setTaskItems] = useState([]);
+
+  const handleAddTask = () => {
+    Keyboard.dismiss();
+    setTaskItems([...taskItems, task]);
+    setTask(null);
+  }
+
+  const completeTask = (index) => {
+    let itemsCopy = [...taskItems];
+    itemsCopy.splice(index, 1);
+    setTaskItems(itemsCopy);
+  }
 
   return (
     <View style={styles.container}>
@@ -16,8 +29,16 @@ export default function App() {
         <View style={styles.items}>
 
           {/* Aquí van las tareas*/}
-          <Task text={"Tarea 1"}></Task>
-          <Task text={"Tarea 2"}></Task>
+          {
+            taskItems.map((item, index) => {
+              return (
+                <TouchableOpacity key={index} onPress={ () => completeTask(index)}>
+                <Task text={item} />
+                </TouchableOpacity>
+              ) 
+            }
+            )}
+
         </View>
 
       </View>
@@ -27,9 +48,11 @@ export default function App() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.writeTaskWrapper}
     >
-      <TextInput style={styles.input} placeholder={'Agregue una tarea'} />
+      <TextInput style={styles.input} placeholder={'Agregue una tarea'} 
+        onChangeText={text => setTask(text)}
+        value={task}/>
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => handleAddTask()}>
         <View style={styles.addWrapper}>
           <Text style={styles.addText}>+</Text>
         </View>
